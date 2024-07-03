@@ -1,0 +1,340 @@
+---
+title: "Travel and Tourism"
+format: html
+editor: visual
+---
+
+## MTH208 Project Report (Group - 9)
+
+#### [Submitted To-]{.underline}
+
+### Dr. Dootika Vats
+
+#### [Submitted By]{.underline} -
+
+##### Priyanshu Gupta
+
+##### Madhav Madhukar
+
+##### Ahana Bose
+
+##### Vishakha
+
+## [Introduction]{.underline}
+
+Welcome to our groundbreaking project exploring the dynamic intersection of tourism and economic prosperity within India. Delving into the influx of tourists and their financial impact, we aim to unravel the intricate relationship between visitor numbers and the income generated. We analyse the vital role tourism plays in shaping India's economic landscape and chart a course for sustainable growth.
+
+### [Motivation for doing this Project]{.underline}
+
+This project stems from a profound curiosity about the transformative influence of tourism on a nation's economic fabric. By scrutinizing tourist numbers and the resulting financial implications, we aspire to unravel the intricate dynamics that underpin sustainable growth. Our motivation lies in contributing insights that can inform strategic decisions, fostering a nuanced understanding of how tourism shapes the economic trajectory of a country
+
+### [Data]{.underline}
+
+We used two different methods to collect our data: direct downloading of CSV files and by web scraping.
+
+Data received by scraping:
+
+1)Data of foreign exchange earning (from year 1997-2020)
+
+2)Number of tourist visiting India (from year 1997-2020)
+
+3)Regionwise list of tourist destinations in India
+
+4)Contribution of tourism industry to gdp of India
+
+Data received directly via csv files:
+
+1)List of Most preferred Indian states by domestics tourist from year 2014-2020 and the number of tourist
+
+2)List of Most preferred Indian states by foreign tourist from year 2014-2020 and the number of tourist
+
+3)Country wise data of number of male and female tourist
+
+4)List of country having relatively higher contribution in India's tourism industry with number of visitors coming from that country
+
+### [Data Collection Process]{.underline}
+
+We have imported rvest, dplyr and ggplot2 library for scraping and plotting the data. We have scraped the Wikipedia page for Tourism in india. In that we have scraped the tables present in it and extracted the table useful for our data, then we used ggplot2 to plot the year vs Earning vs Arrivals.
+
+For knowing the top 10 States/UTs in India that are preferred by the foreign and domestic tourists we have scraped the Wikipedia page of tourism in India and used tidyverse, rvest and dplyr libraries and plotted piecharts seperately for both.
+
+For the contribution of tourism to GDP graph we have downloaded the data from statista website and loaded the data using "readxl" library. Then we have ploted the year vs contribution of tourism to GDP using ggplot2.
+
+For the genderwise barplots of tourists we got the data of number of male and female tourist yearwise from Kaggle. We took the difference of number of male and female tourist for each year .Then using ggplot2 we have plotted year vs difference . After that we have plotted the side by side barplot of male and female tourist for each year.
+
+### [Challenges faced while obtaining the Data]{.underline}
+
+While obtaining the data we faced certain challenges that took up much of our time. Some of these challenges were:
+
+1\. The data collected as .csv files contained a lot of NA values which are hard to deal with. So we had to remove those and manually arrange some of the data which took up a considerable amount of our time.
+
+2\. Another issue that we faced was the scaling of data. A lot of data was not scraped and analysed due to missing units and different scaling.
+
+3\. Finding actual and appropriate tourist data was a difficult task.
+
+### [Important Visualizations]{.underline}
+
+### Foreign Exchange Earnings from tourism
+
+First we imported rvest, dplyr, and ggplot2 library for scrapping and plotting the data using the following code:
+
+```{r}
+#| warning: false
+library(rvest)
+library(dplyr)
+library(ggplot2)
+
+html <- read_html('https://en.wikipedia.org/wiki/Tourism_in_India')
+
+tables <- html %>% html_table()
+
+Earn <- tables[[5]]
+
+Earn$`Earnings (₹ crores)` <- as.numeric(gsub(",", ".", Earn$`Earnings (₹ crores)`))
+
+Arr <- tables[[4]]
+
+Arr <- Arr[1:24, ]
+
+data <- data.frame(Arr$Year, Arr$`Arrivals (millions)`, Earn$`Earnings (₹ crores)`)
+
+  ggplot(data, aes(x = Arr$Year, y = Earn..Earnings....crores.., size = Arr..Arrivals..millions.., color = 'red')) +
+  geom_point() +
+  labs(title = "Year vs Earning vs Arrivals", 
+       x = "Year", 
+       y = "Earning(in crores)") +
+  
+  theme_bw()
+
+
+```
+
+#### Inference:
+
+From the plot of Year vs Earnings (in crores) with bubbles denoting the arrivals of foreign tourists we can see that as time increases the foreign exchange earnings increases along with the number of foreign tourists arriving in India from 1997 to 2019 followed by a drastic decrease in 2020.
+
+An increasing trend in foreign exchange earnings from tourism suggests several positive development and potential implications for the economy:
+
+1\. The consistent increase in the foreign exchange earnings indicates a growth in the tourism industry. This could be attributed to a rise in the number of international tourists visiting India over the years.
+
+2.The upward trend may be reflective of improvements in tourism infrastructure, including better accommodation facilities, transportation options and attractions. Enhanced infrastructure can contribute to a more positive and enjoyable experience for tourists, encouraging them to spend more.
+
+3\. The depression in 2020 is likely linked to the Covid-19 pandemic. Travel restrictions, lockdowns and concerns about health and safety significantly disrupted international travels.
+
+### Top 10 States/UTs of India in number of Domestic Tourists visits
+
+```{r}
+#| warning: false
+library(tidyverse)
+library(rvest)
+library(dplyr)
+
+#This site contains statistics of our tourism industry
+html <- read_html("https://en.wikipedia.org/wiki/Tourism_in_India")
+data <- html %>% html_table()
+
+outside <- data[[8]]
+inside <- data[[9]]
+
+outside <- outside[1:10,]
+inside <- inside[1:10,]
+
+outside$Rank <- as.numeric(outside$Rank)
+outside$Number <- as.numeric(gsub(",", "", outside$Number))
+
+inside$Rank <- as.numeric(inside$Rank)
+inside$Number <- as.numeric(gsub(",", "", inside$Number))
+
+slice <- c(345061140,233977619,179980191,165433898,119191539,85266596,78038522,79687645,48343121,45916573)
+lbls <- c("Tamil Nadu", "Uttar Pradesh","Karnataka", "Andhra Pradesh", "Maharashtra","Telangana","Madhya Pradesh","West Bengal","Gujarat","Rajasthan")
+
+pct <- round(slice/sum(slice)*100)
+lbls <- paste(lbls, pct)
+lbls <- paste(lbls,"%",sep="")
+pie(slice, lbls,
+    main = "Top 10 most preferred states by domestic Tourists in 2017")
+
+```
+
+#### Inference:
+
+From the piechart of top 10 States/UTs of India visited by domestic tourists we can see Tamil Nadu, Uttar Pradesh, Karnataka and Andhra Pradesh has the highest percentages followed by others.
+
+The states of Tamil Nadu, Uttar Pradesh, Karnataka, and Andhra Pradesh are known for their rich cultural and historical heritage. The presence of iconic landmarks, historical monuments, and ancient temples in these states may attract domestic tourists who have an interest in exploring the cultural and historical aspects of India. Uttar Pradesh and Tamil Nadu, in particular, are home to major pilgrimage sites, including Varanasi, Ayodhya, Rishikesh, Rameswaram, and Kanyakumari. Pilgrimage tourism can significantly contribute to the high number of domestic tourists, as people from various parts of the country visit these sacred places.
+
+##### Similarly we have plotted piechart for Top 10 States/UTs of India in number of Foreign Tourists
+
+```{r}
+#| echo: false
+#| warning: false
+slice_2 <- c(5078514,4860455,3104062,2379169,1489500,1475311,977479,923737,636502,541480)
+lbls_2 <- c("Maharashtra","Tamil Nadu","Uttar Pradesh","Delhi","Rajasthan","West Bengal","Kerala","Bihar","Karnataka","Goa")
+pct_2 <- round(slice_2/sum(slice_2)*100)
+lbls_2 <- paste(lbls_2, pct_2)
+lbls_2 <- paste(lbls_2,"%",sep="")
+pie(slice_2, lbls_2,
+    main = "Top 10 most preferred states by Foreign Tourists in 2017") 
+```
+
+#### Inference:
+
+From the piechart of top 10 States/UTs of India visited by international tourists we can see Maharashtra, Tamil Nadu, Uttar Pradesh, and Delhi are likely to be popular tourist destinations among foreign visitors. These regions may offer a diverse range of attractions, including cultural, historical, and modern landmarks, that appeal to international tourists.
+
+The states of Maharashtra, Tamil Nadu, and Uttar Pradesh are home to several culturally and historically significant sites. This suggests that foreign tourists are interested in exploring India's rich heritage, ancient monuments, and diverse cultural experiences. Delhi, being the capital city, is often a gateway for international travelers. Its significance as a political, cultural, and economic hub may attract tourists looking for a blend of historical and modern experiences. Maharashtra, with Mumbai as its economic and entertainment capital, also draws a substantial number of foreign visitors.
+
+### Contribution of Tourism to GDP
+
+```{r}
+#| warning: false
+library(ggplot2)
+library(readxl)
+xl <- read_excel("contribution-of-tourism-and-hospitality-to-gdp-in-india-2012-2028.xlsx")
+
+data <- as.data.frame(xl)
+data$Year <- as.numeric(data$Year)
+data[7,1] <- as.numeric(2018)
+data[8,1] <- as.numeric(2028)
+data <- data[1:7,]
+ggplot() + 
+  geom_line(data = data, mapping = aes(x = Year, y = Contribution), color = 'blue') +
+  geom_point(data = data, mapping = aes(x = Year, y = Contribution), color = 'blue') +
+  labs(x = 'Year', y = 'Contribution to GDP(in millions)', title = "Contribution of tourism to GDP of India") +
+  ylim(60,99)
+
+write.csv(data, "Tourism_contri_to_GDP.csv")
+
+
+```
+
+#### Inference:
+
+Here we have the plot of Year vs Contribution of Tourism to India's GDP (2012- 2018)  which shows a positive trend i.e., as years are rolling by the contribution (in millions) is increasing.
+
+This may suggest that the tourism sector has been a growing and significant contributor to the overall economic growth of the country. The rise in the contribution of tourism to GDP may imply an increase in the number of tourists visiting India during the specified years. This growth in tourist arrivals could be attributed to factors such as improved infrastructure, marketing efforts, and favorable economic conditions globally. A growing contribution to GDP may reflect ongoing investments in tourism infrastructure. Governments and private sectors often invest in developing better facilities, transportation networks, and attractions to attract more tourists and enhance their experience.
+
+### Gender wise distribution of tourists
+
+Difference b/w male and female tourists
+
+```{r}
+data <- read.csv("Country Wise Gender.csv",header = TRUE, row.names = 1)  # Assuming headers and row names are present in your file
+
+# Identify numeric columns in the data frame
+numeric_columns <- sapply(data, is.numeric)
+
+# Calculate column means for numeric columns excluding NA values
+column_means <- colMeans(data[, numeric_columns], na.rm = TRUE)
+
+# Find NA values in the numeric columns
+na_indices <- which(is.na(data[, numeric_columns]), arr.ind = TRUE)
+
+# Replace NA values with the column means
+for (i in 1:nrow(na_indices)) {
+  data[na_indices[i, 1], names(numeric_columns)[na_indices[i, 2]]] <- column_means[na_indices[i, 2]]}
+write.csv(data, "CountrywiseGender.csv")
+
+data_2 <- read.csv('Countrywise Gender.csv')
+
+diff_1 <- data_2$X2014.Male - data_2$X2014.Female
+
+diff_2 <- data_2$X2015.Male - data_2$X2015.Female
+
+diff_3 <- data_2$X2016.Male - data_2$X2016.Female
+
+diff_4 <- data_2$X2017.Male - data_2$X2017.Female
+
+diff_5 <- data_2$X2018.Male - data_2$X2018.Female
+
+diff_6 <- data_2$X2019.Male - data_2$X2019.Female
+
+s <- c(sum(diff_1), sum(diff_2), sum(diff_3), sum(diff_4), sum(diff_5), sum(diff_6))
+t <- c(2014:2019)
+plot(t, s, type = "b", col = 'purple', lwd = 3, pch = 16, xlab = "Year", ylab = 'Difference(in million)', main = "Difference b/w Male and Female Tourists Worldwide")
+
+
+```
+
+#### Inference:
+
+The difference between male and female tourists' plot shows previously there was a huge difference between the number of male and female tourists but over the years the difference has decreased significantly. This decreasing difference suggests that there is a trend towards greater gender parity in travel. This may also signify a rise in the number of female tourists, indicating greater participation and interest in travel among women. This could be influenced by factors such as increased financial independence, changing societal norms, and a growing emphasis on female empowerment. It's important to note that while the decreasing difference suggests positive trends in gender equality in travel, the specific reasons behind this trend would require more detailed data analysis and examination of cultural, economic, and social factors.
+
+```{r}
+male_2014 <- sum(data_2$X2014.Male)
+male_2015 <- sum(data_2$X2015.Male)
+male_2016 <- sum(data_2$X2016.Male)
+male_2017 <- sum(data_2$X2017.Male)
+male_2018 <- sum(data_2$X2018.Male)
+male_2019 <- sum(data_2$X2019.Male)
+m <- c(male_2014,male_2015,male_2016,male_2017,male_2018,male_2019)
+
+data_3 <- data.frame(t,m)
+
+bp_male <- barplot(data_3$m, names.arg = data_3$t, xlab = "Year", ylab = "Number of Male Tourists", col = "skyblue", border = 'black',)
+
+
+```
+
+```{r}
+female_2014 <- sum(data_2$X2014.Female)
+female_2015 <- sum(data_2$X2015.Female)
+female_2016 <- sum(data_2$X2016.Female)
+female_2017 <- sum(data_2$X2017.Female)
+female_2018 <- sum(data_2$X2018.Female)
+female_2019 <- sum(data_2$X2019.Female)
+fe <- c(female_2014,female_2015,female_2016,female_2017,female_2018,female_2019)
+bp_female <- barplot(fe, names.arg = data_3$t, xlab = "Year", ylab = "Number of Female Tourists", col = 'orange', border = 'black')
+
+```
+
+```{r}
+tourist_data <- data.frame(year = t, males = m, females = fe )
+
+barplot(t(as.matrix(tourist_data[, c("males", "females")])),
+        beside = TRUE,
+        col = c("blue","orange"),
+        names.arg = tourist_data$year,
+        main = "Number of Tourists by Gender and Year",
+        xlab = "Year",
+        ylab = "Number of Tourists")
+legend(15, 3800, legend = c("males", "females"),fill = c("blue","orange"), y.intersp = 0.75)
+
+
+```
+
+#### Inference:
+
+We can see from the individual barplots of the number of male and female tourists from worldwide travelling to India as well as the sidewise barplot of number of male and female tourists that the number of males and females arriving from different countries has been almost constant from 2014-2019.
+
+The constant number of male and female tourists may suggest a stable gender distribution over the specified period. The stability in the number of tourists indicates that the tourism industry in India is resilient to external shocks and economic fluctuations.A consistent number of male and female tourists suggests that India's attractions appeal to a diverse range of travelers. The country likely offers a variety of experiences, cultural attractions, historical sites, natural beauty, and other factors that are attractive to both genders.
+
+### [Key Questions]{.underline}
+
+1\. What has been the trend in the number of international tourists visits in India over the last decade? Are there any noticeable patterns or fluctuations?
+
+2\. Which Indian states/UTs receive the highest number of domestic and international tourists?
+
+3\. How did the Covid-19 pandemic impact India's tourism industry in terms of revenue, foreign and domestic tourist arrivals?
+
+4\. Are there any specific policy change or economic events that influence the earnings from tourism?
+
+5\. What is the annual growth rates of earnings from tourism from 1997 to 2020?
+
+### [Possible Biases in the Data]{.underline}
+
+1.Our tourism data is not based on a very wide range of time. Thus it may not be representative of the overall tourism trends.
+
+2\. Most of our data goes up to year 2020 which shows COVID-19 pandemic have had a significant impact on tourism patterns. But we were unable to get data after 2020. So our data does not distinguish pre-pandemic and post-pandemic-related entries, so it may not accurately represent typical tourism trends after the pandemic.
+
+3.Some of the tourist data are slightly mixed with immigration data, as it was very difficult to find data with actual tourists in it. Moreover many people moved to India for work purposes or education, and thus they can't be treated as tourists in the true sense.
+
+### [Conclusion]{.underline}
+
+From the trends of plots we can say that the number of tourists in India has been increasing every year. There may be several reasons for this and its important to note that these trends can be influenced by various factors like cultural and historical attractions of India ,offering a wide range of landscapes, from the Himalayan mountains in the north to the tropical beaches in the south.As the arrivals of tourists in India is increasing the overall earning of country from tourism is also increasing.
+
+### [References]{.underline}
+
+https://en.m.wikipedia.org/wiki/Tourism_in_India
+
+https://www.kaggle.com/datasets/rajkachhadiya/india-tourism-20142020?select=Country+Wise+Age+Group.csv
+
+http://www.statista.com
